@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Algorithm Visualizer</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+      <div>
+        <strong>Algorithm Visualizer</strong>
+        <small>Searching and sorting · Data Structures</small>
+      </div>
+    </div>
+    <nav class="nav" aria-label="Sections">
+      <a href="#s1">1 List</a>
+      <a href="#s2">2 Run</a>
+      <a href="#s3">3 Results</a>
+      <a href="#s4">4 Complexity</a>
+      <a href="#s5">5 Cases</a>
+      <a href="#s6">6 Compare</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+  <!-- 1. custom input -->
+  <section id="s1">
+    <h2 class="step"><span>1</span> Enter your list</h2>
+    <div class="card">
+      <div class="row">
+        <input type="text" id="numInput" class="grow" inputmode="decimal" autocomplete="off"
+               placeholder="Type a number, like -5, 0 or 12" aria-label="Number to add">
+        <button class="btn" id="addBtn" type="button">Add</button>
+      </div>
+      <div class="row">
+        <input type="number" id="randCount" value="10" min="1" max="60" style="width:80px" aria-label="How many random numbers">
+        <button class="btn" id="randBtn" type="button">Random list</button>
+        <button class="btn btn-quiet" id="clearBtn" type="button">Clear all</button>
+        <span class="hint" id="listCount">0 numbers</span>
+      </div>
+      <p class="msg" id="listMsg" role="status"></p>
+      <div class="chips" id="chips" aria-label="Numbers in your list"></div>
+    </div>
+  </section>
+
+  <!-- 2. choose an algorithm, run, watch step by step -->
+  <section id="s2">
+    <h2 class="step"><span>2</span> Choose an algorithm and watch it step by step</h2>
+    <div class="layout">
+      <div class="col">
+        <div class="card">
+          <p class="group-label">Searching</p>
+          <div class="algo-grid" id="searchButtons"></div>
+
+          <div id="targetRow" class="row" hidden style="margin-top:10px">
+            <label for="targetInput" style="font-size:14px">Number to find</label>
+            <input type="text" id="targetInput" inputmode="decimal" autocomplete="off" style="width:110px" placeholder="e.g. 33">
+          </div>
+          <p class="group-label">Sorting</p>
+          <div class="algo-grid" id="sortButtons"></div>
+
+
+          <div class="banner" id="sortBanner" hidden role="alert">
+            <strong>Binary search needs a sorted list.</strong>
+            Your list is not sorted, so the answer could be wrong.
+            <div class="row">
+              <button class="btn btn-primary btn-small" id="sortFirstBtn" type="button">Sort first</button>
+              <button class="btn btn-small" id="anywayBtn" type="button">Search anyway</button>
+            </div>
+          </div>
+
+          <div class="row" style="margin-top:14px">
+            <button class="btn btn-primary grow" id="runBtn" type="button">Run</button>
+          </div>
+          <p class="msg" id="runMsg" role="status"></p>
+          <div class="row">
+            <span class="hint full">Load a sample list for the selected algorithm:</span>
+            <button class="btn btn-small" type="button" data-case="best" disabled>Best case</button>
+            <button class="btn btn-small" type="button" data-case="average" disabled>Average</button>
+            <button class="btn btn-small" type="button" data-case="worst" disabled>Worst case</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="col">
+        <div class="card">
+          <h2 id="stageTitle">Visualization</h2>
+          <div class="stage-wrap" id="stageWrap">
+            <svg id="stage" viewBox="0 0 760 320" role="img" aria-label="Bars showing the numbers in your list"></svg>
+            <p class="stage-note" id="stageNote" hidden></p>
+          </div>
+          <div class="controls" id="controls">
+            <button class="btn" id="btnReset" type="button">Reset</button>
+            <button class="btn" id="btnBack" type="button">&#9664; Step</button>
+            <button class="btn btn-primary" id="btnPlay" type="button">Play</button>
+            <button class="btn" id="btnStep" type="button">Step &#9654;</button>
+            <button class="btn" id="btnEnd" type="button">End</button>
+            <label class="speed">Speed
+              <input type="range" id="speed" min="1" max="10" value="4" step="1" aria-label="Animation speed">
+            </label>
+          </div>
+          <div class="progress">
+            <span id="stepText">Step 0 / 0</span>
+            <input type="range" id="progress" min="0" max="0" value="0" step="1" aria-label="Animation position">
+          </div>
+          <div class="explain" id="explain" aria-live="polite">Add some numbers, pick an algorithm and press Run.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. time, comparisons, swaps -->
+  <section id="s3">
+    <h2 class="step"><span>3</span> Result, execution time, comparisons and swaps</h2>
+    <div class="stats">
+      <div class="stat"><span>Execution time</span><strong id="statTime">–</strong></div>
+      <div class="stat"><span>Comparisons</span><strong id="statCmp">–</strong></div>
+      <div class="stat"><span id="swapLabel">Swaps</span><strong id="statSwap">–</strong></div>
+      <div class="stat"><span>Result</span><strong class="small" id="statResult">–</strong></div>
+      <div class="stat"><span>Case of your list</span><strong class="small" id="statCase">–</strong></div>
+    </div>
+    <div class="card" id="resultCard" hidden style="margin-top:12px">
+      <p id="resultText"></p>
+      <p id="caseText" class="case-text"></p>
+      <div class="result-chips" id="resultChips"></div>
+    </div>
+  </section>
+
+  <!-- 4. time and space complexity -->
+  <section id="s4">
+    <h2 class="step"><span>4</span> Time and space complexity</h2>
+    <div class="card">
+      <div class="table-wrap" id="cxTable"></div>
+      <div class="notes" id="cxNotes"></div>
+    </div>
+  </section>
+
+  <!-- 5. best / average / worst -->
+  <section id="s5">
+    <h2 class="step"><span>5</span> Best, average and worst case</h2>
+    <div class="card">
+      <div class="row">
+        <button class="btn btn-primary" id="caseBtn" type="button">Measure my list</button>
+      </div>
+      <p class="msg" id="caseMsg" role="status"></p>
+      <div class="table-wrap" id="casesTable" style="margin-top:12px"></div>
+    </div>
+  </section>
+
+  <!-- 6. comparison charts -->
+  <section id="s6">
+    <h2 class="step"><span>6</span> Compare the algorithms</h2>
+    <div class="card">
+      <div class="row">
+        <button class="btn btn-primary" id="compareBtn" type="button">Compare on my list</button>
+      </div>
+      <p class="msg" id="compareMsg" role="status"></p>
+    </div>
+    <div id="compareResults" class="stack" hidden style="margin-top:16px">
+      <div class="charts">
+        <div class="card chart" id="chartTime"></div>
+        <div class="card chart" id="chartCmp"></div>
+        <div class="card chart" id="chartSwaps"></div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<p class="footer">Backend: Python (Flask). Frontend: HTML, CSS and JavaScript.</p>
+
+<script src="charts.js"></script>
+<script src="animation.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
