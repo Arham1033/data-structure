@@ -1,4 +1,4 @@
-"""Time / space complexity table and best / average / worst case helpers."""
+"""Complexity table plus the best / average / worst case helpers used by the page."""
 
 import random
 from functools import lru_cache
@@ -8,7 +8,6 @@ from algorithms import SORTS, SEARCHES
 SEARCH_ORDER = ["linear", "binary"]
 SORT_ORDER = ["bubble", "selection", "insertion", "merge", "quick"]
 
-# ---------------------------------------------------------------- theory table
 COMPLEXITY = {
     "linear": {
         "name": "Linear search", "type": "search",
@@ -77,28 +76,24 @@ COMPLEXITY = {
 }
 
 
-# ---------------------------------------------------------------- best / average / worst order of YOUR numbers
 def _balanced_for_quick(values):
-    """Order sorted values so quick sort (last item = pivot) always splits in the middle."""
     if len(values) <= 2:
         return list(values)
     mid = len(values) // 2
     left = _balanced_for_quick(values[:mid])
     right = _balanced_for_quick(values[mid + 1:])
-    if right:                                   # the partition step moves one item, so rotate by one
+    if right:
         right = [right[-1]] + right[:-1]
     return left + right + [values[mid]]
 
 
 def _worst_for_merge(values):
-    """Interleave the halves so every merge needs the most comparisons."""
     if len(values) <= 1:
         return list(values)
     return _worst_for_merge(values[0::2]) + _worst_for_merge(values[1::2])
 
 
 def _order(algorithm, case, n, seed=7):
-    """An order of the ranks 1..n that gives the best / average / worst case of a sort."""
     base = list(range(1, n + 1))
     if case == "best":
         return _balanced_for_quick(base) if algorithm == "quick" else base
@@ -109,24 +104,20 @@ def _order(algorithm, case, n, seed=7):
 
 
 def arrange(algorithm, case, values, seed=7):
-    """Re-order YOUR numbers (same numbers, new order) for the best / average / worst case.
-
-    Returns {"array": [...], "target": number or None}. Searches also get a number to find.
-    """
     vals = sorted(values)
     n = len(vals)
     if algorithm in SEARCHES:
         missing = vals[-1] + 1
-        if algorithm == "linear":      # linear search works on any order: keep the list as it is
+        if algorithm == "linear":
             arr = list(values)
             target = {"best": arr[0], "average": arr[n // 2], "worst": missing}[case]
-        else:                          # binary search needs a sorted list
+        else:
             arr = vals
             target = {"best": vals[(n - 1) // 2], "average": vals[n // 4], "worst": missing}[case]
         return {"array": arr, "target": target}
     if n < 2:
         return {"array": vals, "target": None}
-    if case == "average":              # a random order of the same numbers
+    if case == "average":
         arr = list(values)
         random.Random(seed).shuffle(arr)
     else:
@@ -134,19 +125,16 @@ def arrange(algorithm, case, values, seed=7):
     return {"array": arr, "target": None}
 
 
-# ---------------------------------------------------------------- measured cases
 def _whole(x):
-    """Round to a whole number, halves go up (5.5 -> 6, 2.5 -> 3)."""
     return int(x + 0.5)
 
 
 @lru_cache(maxsize=64)
 def measured_cases(values):
-    """Real comparison counts for the best / average / worst arrangement of the given numbers."""
     vals = sorted(values)
     n = len(vals)
     out = {}
-    for name in SEARCH_ORDER:                      # every number in the list is tried as the target
+    for name in SEARCH_ORDER:
         counts = [SEARCHES[name](vals, t)[1] for t in vals]
         out[name] = {"best": min(counts), "average": _whole(sum(counts) / n),
                      "worst": max(max(counts), SEARCHES[name](vals, vals[-1] + 1)[1])}
@@ -158,10 +146,8 @@ def measured_cases(values):
     return {"n": n, "cases": out}
 
 
-# ---------------------------------------------------------------- which case is MY list?
 @lru_cache(maxsize=256)
 def _bounds(algorithm, n):
-    """(fewest, most) comparisons of merge / quick sort on n numbers."""
     ranks = tuple(range(1, n + 1))
     return (SORTS[algorithm](arrange(algorithm, "best", ranks)["array"])[1],
             SORTS[algorithm](arrange(algorithm, "worst", ranks)["array"])[1])
@@ -203,7 +189,6 @@ REASONS = {
 
 
 def classify(algorithm, values, result):
-    """Say whether the list the user ran is a best, average or worst case for the algorithm."""
     n = len(values)
     info = COMPLEXITY[algorithm]
     if n < 2:
@@ -230,14 +215,13 @@ def classify(algorithm, values, result):
         else:
             case = "average"
     elif algorithm in ("bubble", "insertion"):
-        # swaps = number of out-of-order pairs: 0 means sorted, n(n-1)/2 means reversed
         if swaps == 0:
             case = "best"
         elif swaps == n * (n - 1) // 2:
             case = "worst"
         else:
             case = "average"
-    else:  # merge and quick sort: compare with the fewest / most possible comparisons
+    else:
         low, high = _bounds(algorithm, n)
         case = "best" if comparisons <= low else "worst" if comparisons >= high else "average"
 

@@ -1,4 +1,4 @@
-"""Tests. Run:  python -m unittest test_project -v"""
+"""Tests. Run: python -m unittest test_project -v"""
 
 import random
 import unittest
@@ -9,7 +9,6 @@ from main import app
 
 
 def replay(start, steps):
-    """Apply the recorded steps to a copy of the list (the same rules as the browser)."""
     arr, cmps, moves = list(start), 0, 0
     for s in steps:
         d = s["i"]
@@ -48,10 +47,10 @@ class SortTests(unittest.TestCase):
             self.assertEqual(data, [3, 1, 2])
 
     def test_known_counts(self):
-        self.assertEqual(alg.bubble_sort(list(range(1, 21)))[1:], (19, 0))        # best case O(n)
+        self.assertEqual(alg.bubble_sort(list(range(1, 21)))[1:], (19, 0))
         self.assertEqual(alg.selection_sort([56, 78, 33, 81, 12])[2], 4)
-        self.assertEqual(alg.insertion_sort(list(range(10, 0, -1)))[1], 45)       # n(n-1)/2
-        self.assertEqual(alg.quick_sort(list(range(1, 11)))[1], 45)               # sorted = worst case
+        self.assertEqual(alg.insertion_sort(list(range(10, 0, -1)))[1], 45)
+        self.assertEqual(alg.quick_sort(list(range(1, 11)))[1], 45)
 
     def test_long_sorted_list_does_not_crash(self):
         big = list(range(1500))
@@ -60,7 +59,7 @@ class SortTests(unittest.TestCase):
 
 class SearchTests(unittest.TestCase):
     def test_linear(self):
-        self.assertEqual(alg.linear_search([5, 3, 9, 3, 1], 3), (1, 2))           # first match
+        self.assertEqual(alg.linear_search([5, 3, 9, 3, 1], 3), (1, 2))
         self.assertEqual(alg.linear_search([5, 3, 9], 7), (-1, 3))
         self.assertEqual(alg.linear_search([0, 1], 0), (0, 1))
 

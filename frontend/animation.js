@@ -1,9 +1,5 @@
-/* animation.js: replays the steps recorded by the Python algorithms.
- *
- * Python sends the steps as small operations (cmp, swap, set, mark, ...), see
- * the top of algorithms.py. This file applies them one by one to its own copy of the
- * list and draws the bars.
- */
+// animation.js: replays the steps recorded by Python (compare, swap, set, ...) on the bars.
+
 const Animator = (function () {
   const COLOR = {
     normal: "#2A2A2A",
@@ -17,7 +13,6 @@ const Animator = (function () {
     muted: "#5A5751",
     line: "#BDB9B1",
   };
-  // [delay in ms, steps per tick] for speed 1..10
   const SPEEDS = [[900, 1], [600, 1], [420, 1], [280, 1], [180, 1], [110, 1], [60, 1], [30, 2], [16, 6], [10, 25]];
 
   function fmtVal(v) {
@@ -32,7 +27,6 @@ const Animator = (function () {
     };
   }
 
-  /* Apply one recorded step to (arr, st). Exported so it can be tested. */
   function applyStep(arr, st, s) {
     st.hl = {};
     const d = s.i;

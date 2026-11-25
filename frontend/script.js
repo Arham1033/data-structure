@@ -1,16 +1,15 @@
-/* script.js: the page. It collects the list, asks Python (Flask) to run the algorithm with fetch(),
- * plays the steps with animation.js and draws charts with charts.js.
- * The sections follow the numbers on the page: 1 list, 2 run, 3 results, 4 complexity, 5 cases, 6 compare. */
+// script.js: the page logic. Sends the list to Flask with fetch(), plays the steps with animation.js and draws charts with charts.js.
+
 (function () {
   "use strict";
 
-  var MAX_LIST = 1000;      // same limit as main.py
-  var MAX_ANIMATED = 80;    // longer lists are calculated but not animated
+  var MAX_LIST = 1000;
+  var MAX_ANIMATED = 80;
 
-  var list = [];            // the user's numbers
-  var algo = "bubble";      // selected algorithm
-  var info = null;          // complexity table from Python
-  var lastRun = null;       // last result from Python
+  var list = [];
+  var algo = "bubble";
+  var info = null;
+  var lastRun = null;
   var resultsShown = false;
 
   function $(id) { return document.getElementById(id); }
@@ -25,7 +24,7 @@
     var t = String(text).trim();
     if (!/^[+-]?(\d+\.?\d*|\.\d+)$/.test(t)) return null;
     var v = Number(t);
-    return isFinite(v) ? (v === 0 ? 0 : v) : null;     // turns -0 into 0
+    return isFinite(v) ? (v === 0 ? 0 : v) : null;
   }
 
   function setMsg(id, text, isError) {
@@ -33,7 +32,6 @@
     $(id).className = "msg" + (isError ? " error" : "");
   }
 
-  /* Talk to Python. */
   function api(url, body) {
     var options = body ? { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) } : undefined;
     return fetch(url, options).then(function (res) {
@@ -44,7 +42,7 @@
     });
   }
 
-  /* ============================================================ 1. the list */
+  // 1. the list
   function showList() {
     $("chips").innerHTML = list.length
       ? list.map(function (v, i) {
@@ -84,7 +82,7 @@
   $("randBtn").onclick = function () {
     var n = Math.max(1, Math.min(60, parseInt($("randCount").value, 10) || 10));
     list = [];
-    for (var i = 0; i < n; i++) list.push(Math.floor(Math.random() * 100) - 20);   // -20 .. 79, repeats allowed
+    for (var i = 0; i < n; i++) list.push(Math.floor(Math.random() * 100) - 20);
     setMsg("listMsg", "Made a random list of " + n + " numbers.");
     listChanged();
   };
@@ -98,7 +96,7 @@
     listChanged();
   };
 
-  /* ============================================================ 2. choose and run */
+  // 2. choose and run
   var anim = Animator.create($("stage"), { onUpdate: onAnimation });
 
   function makeButtons(boxId, names) {
@@ -126,7 +124,6 @@
     if (b) pickAlgorithm(b.dataset.algo);
   });
 
-  /* Draw the plain list (no animation yet). */
   function showStage() {
     $("stageNote").hidden = true;
     $("stageWrap").hidden = false;
@@ -171,7 +168,7 @@
   $("anywayBtn").onclick = function () { run(true); };
   $("targetInput").onkeydown = function (e) { if (e.key === "Enter") run(false); };
 
-  $("sortFirstBtn").onclick = function () {     // sort the list with Python, then search it
+  $("sortFirstBtn").onclick = function () {
     api("/api/sort", { algorithm: "merge", array: list }).then(function (data) {
       list = data.array;
       listChanged();
@@ -180,7 +177,6 @@
     }).catch(function (err) { setMsg("runMsg", err.message, true); });
   };
 
-  /* Best / average / worst buttons: the SAME numbers of your list in a different order. */
   Array.prototype.forEach.call(document.querySelectorAll("[data-case]"), function (b) {
     b.onclick = function () {
       api("/api/sample", { algorithm: algo, case: b.dataset.case, array: list }).then(function (data) {
@@ -192,7 +188,6 @@
     };
   });
 
-  /* Animation controls. */
   $("btnPlay").onclick = function () { anim.toggle(); };
   $("btnStep").onclick = function () { anim.step(); };
   $("btnBack").onclick = function () { anim.back(); };
@@ -208,10 +203,10 @@
     $("progress").value = s.pos;
     $("btnPlay").textContent = s.playing ? "Pause" : s.finished ? "Replay" : "Play";
     if (s.msg) $("explain").textContent = s.msg;
-    if (s.finished && lastRun && !resultsShown) showResults();   // show the answer only when the animation ends
+    if (s.finished && lastRun && !resultsShown) showResults();
   }
 
-  /* ============================================================ 3. results */
+  // 3. results
   function resetResults() {
     ["statTime", "statCmp", "statSwap", "statResult", "statCase"].forEach(function (id) { $(id).textContent = "–"; });
     $("resultCard").hidden = true;
@@ -246,7 +241,7 @@
     $("resultCard").hidden = false;
   }
 
-  /* ============================================================ 4. complexity */
+  // 4. complexity
   function showComplexity() {
     var rows = info.search_order.concat(info.sort_order).map(function (n) {
       var c = info.algorithms[n];
@@ -261,7 +256,7 @@
       "<div><b>Worst</b> " + esc(c.worst_note) + "</div><div><b>Space</b> " + esc(c.space_note) + "</div>";
   }
 
-  /* ============================================================ 5. best / average / worst */
+  // 5. best / average / worst
   function measureCases() {
     if (!list.length) { setMsg("caseMsg", "Add some numbers in step 1 first.", true); return; }
     setMsg("caseMsg", "Measuring...");
@@ -277,7 +272,7 @@
   }
   $("caseBtn").onclick = measureCases;
 
-  /* ============================================================ 6. compare */
+  // 6. compare
   $("compareBtn").onclick = function () {
     if (!list.length) { setMsg("compareMsg", "Add some numbers in step 1 first.", true); return; }
     setMsg("compareMsg", "Comparing...");
@@ -297,7 +292,7 @@
     }).catch(function (err) { setMsg("compareMsg", err.message, true); });
   };
 
-  /* ============================================================ start */
+  // start
   window.addEventListener("resize", function () { Charts.redrawAll(); anim.redraw(); });
 
   api("/api/complexity").then(function (data) {

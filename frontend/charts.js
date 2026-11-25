@@ -1,5 +1,5 @@
-/* charts.js: small SVG charts (bar and grouped bar). No libraries needed, so they work offline.
- * Each chart measures its container, so text keeps the same pixel size on phones and desktops. */
+// charts.js: small SVG bar charts with no libraries, so they work offline.
+
 const Charts = (function () {
   const INK = "#2A2A2A";
   const MUTED = "#5A5751";
@@ -27,14 +27,12 @@ const Charts = (function () {
     return trim(ms, 2) + " ms";
   }
 
-  /* One unit for a whole chart or table, so 12 µs and 0.021 ms never sit side by side. */
   function timeFormatter(maxMs) {
     const num = (x) => trim(x, x >= 100 ? 0 : x >= 10 ? 1 : 2);
     if (maxMs < 1) return (ms) => num(ms * 1000) + " µs";
     return (ms) => num(ms) + " ms";
   }
 
-  /* A y axis from 0 to a round maximum, with at most 5 round tick steps. */
   function axis(v) {
     if (!(v > 0)) return { max: 1, ticks: [0, 0.25, 0.5, 0.75, 1] };
     const raw = v / 4;
@@ -85,7 +83,6 @@ const Charts = (function () {
 
   function labelSize(slot) { return slot >= 64 ? 12 : slot >= 50 ? 11 : 10; }
 
-  /* One bar per label. With highlightMin the smallest bar is orange. */
   function bar(el, o) {
     el.__redraw = function () { bar(el, o); };
     const fmt = o.format || formatCount;
@@ -114,7 +111,6 @@ const Charts = (function () {
     el.innerHTML = head(o) + svg;
   }
 
-  /* Several bars per label (for example best / average / worst). */
   function grouped(el, o) {
     el.__redraw = function () { grouped(el, o); };
     const fmt = o.format || formatCount;

@@ -1,8 +1,4 @@
-"""Flask backend. Run:  python main.py   then open http://127.0.0.1:5000
-
-The browser (JavaScript) sends the list to these routes, Python runs the
-algorithm and sends the result back as JSON.
-"""
+"""Flask backend. Run: python main.py, then open http://127.0.0.1:5000. Routes run an algorithm and return JSON."""
 
 import math
 import os
@@ -16,7 +12,7 @@ FRONTEND = os.path.join(os.path.dirname(os.path.abspath(__file__)), "frontend")
 app = Flask(__name__, static_folder=FRONTEND, static_url_path="")
 
 MAX_LIST = 1000
-MAX_CASE_LIST = 300     # step 5 runs every algorithm many times
+MAX_CASE_LIST = 300
 
 
 class ApiError(Exception):
@@ -33,7 +29,6 @@ def not_found(_err):
     return jsonify({"error": "Not found."}), 404
 
 
-# ---------------------------------------------------------------- reading the request
 def get_json():
     data = request.get_json(silent=True)
     if not isinstance(data, dict):
@@ -62,7 +57,6 @@ def get_name(data, table):
     return data["algorithm"]
 
 
-# ---------------------------------------------------------------- routes
 @app.route("/")
 def home():
     return send_from_directory(FRONTEND, "index.html")
@@ -96,7 +90,6 @@ def sort():
 
 @app.route("/api/compare", methods=["POST"])
 def compare():
-    """Run all five sorts on the same list."""
     arr = get_array(get_json())
     sorts = {}
     for name, func in SORTS.items():
@@ -107,7 +100,6 @@ def compare():
 
 @app.route("/api/cases", methods=["POST"])
 def cases():
-    """Best / average / worst comparison counts for the numbers of the user's list."""
     arr = get_array(get_json())
     if len(arr) > MAX_CASE_LIST:
         raise ApiError(f"Step 5 works for lists of up to {MAX_CASE_LIST} numbers.")
@@ -116,7 +108,6 @@ def cases():
 
 @app.route("/api/sample", methods=["POST"])
 def sample():
-    """The same numbers re-ordered as the best / average / worst case of one algorithm."""
     data = get_json()
     name = data.get("algorithm")
     if name not in SEARCHES and name not in SORTS:

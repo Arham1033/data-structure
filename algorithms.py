@@ -1,48 +1,20 @@
-"""All 7 algorithms: linear search, binary search, bubble, selection, insertion, merge and quick sort.
-
-The programs follow the Data Structures lecture notes. Every function does three things:
-  1. does the real work on a copy of the list,
-  2. counts comparisons (and swaps),
-  3. if a `steps` list is given, writes the animation steps into it (one dict per step).
-
-Searches return  (index, comparisons).
-Sorts return     (sorted_list, comparisons, swaps).
-
-"swaps" means: swaps for bubble / selection / quick sort, shifts for insertion sort
-and element moves (writes) for merge sort.
-
-Step operations used by the animation (see frontend/animation.js):
-    cmp [a, b]    compare these positions (counts as 1 comparison)
-    note [k]      message about one position (not counted)
-    swap [a, b]   swap the values at these positions
-    set [k, v]    write value v at position k (merge sort)
-    mark [...]    these positions are now in their final place
-    zone [lo, hi] sorted-so-far part (insertion sort)
-    range [lo, hi]the part being worked on (the rest is dimmed)
-    pivot [k]     pivot / current minimum (None clears it)
-    key [k]       insertion sort key
-    found [k]     search success      notfound   search finished without a match
-"""
+"""All 7 algorithms (2 searches, 5 sorts). Each one counts comparisons and swaps and records animation steps."""
 
 import time
 
-MAX_STEPS = 30000   # stop recording after this many steps (the counters keep working)
+MAX_STEPS = 30000
 
 
 def log(steps, op, data=None, msg=""):
-    """Record one animation step (does nothing when steps is None)."""
     if steps is not None and len(steps) < MAX_STEPS:
         steps.append({"op": op, "i": data, "msg": msg})
 
 
 def fmt(value):
-    """Show 5.0 as 5."""
     return str(int(value)) if isinstance(value, float) and value.is_integer() else str(value)
 
 
-# ============================================================ SEARCHING
 def linear_search(values, target, steps=None):
-    """Check the items one by one. Stops at the FIRST match."""
     comparisons = 0
     for i, value in enumerate(values):
         comparisons += 1
@@ -55,7 +27,6 @@ def linear_search(values, target, steps=None):
 
 
 def binary_search(values, target, steps=None):
-    """Compare with the middle item and keep one half. The list must be sorted."""
     low, high = 0, len(values) - 1
     comparisons = 0
     while low <= high:
@@ -77,7 +48,6 @@ def binary_search(values, target, steps=None):
     return -1, comparisons
 
 
-# ============================================================ SORTING
 def bubble_sort(values, steps=None):
     arr = list(values)
     n = len(arr)
@@ -95,7 +65,7 @@ def bubble_sort(values, steps=None):
             else:
                 log(steps, "note", [j, j + 1], f"{fmt(arr[j])} is not bigger than {fmt(arr[j + 1])}, so they are already in order. No swap.")
         log(steps, "mark", [n - i - 1], f"End of pass {i + 1}: the biggest value left, {fmt(arr[n - i - 1])}, has bubbled to the end and is in its final place.")
-        if not did_swap:        # no swap in a whole pass = already sorted
+        if not did_swap:
             log(steps, "mark", list(range(n - i - 1)), "No swap in this pass, so the list is already sorted. Stop early.")
             break
     log(steps, "mark", list(range(n)), "The list is sorted.")
@@ -135,10 +105,10 @@ def insertion_sort(values, steps=None):
     for i in range(1, n):
         key = arr[i]
         j = i - 1
-        shown = i                       # where the key is drawn while it slides left
+        shown = i
         log(steps, "zone", [0, i - 1], "")
         log(steps, "key", [shown], f"Take {fmt(key)} (index {i}) as the key. We will slide it left into the correct place inside the sorted part on its left.")
-        while j >= 0:                   # check the index first, then the value
+        while j >= 0:
             comparisons += 1
             log(steps, "cmp", [j, shown], f"Is {fmt(arr[j])} bigger than the key {fmt(key)}? If yes it must move right to make room, if not the key has found its place.")
             if arr[j] <= key:
@@ -161,27 +131,27 @@ def merge_sort(values, steps=None):
     counts = {"comparisons": 0, "swaps": 0}
 
     def merge(lo, mid, hi):
-        left, right = arr[lo:mid + 1], arr[mid + 1:hi + 1]     # temporary lists (extra space O(n))
+        left, right = arr[lo:mid + 1], arr[mid + 1:hi + 1]
         merged = []
         i = j = 0
         log(steps, "range", [lo, hi], f"Merge the two sorted halves {lo}..{mid} and {mid + 1}..{hi} into one sorted piece by always taking the smaller front item.")
         while i < len(left) and j < len(right):
             counts["comparisons"] += 1
             log(steps, "cmp", [lo + i, mid + 1 + j], f"Compare the front item of the left half, {fmt(left[i])}, with the front item of the right half, {fmt(right[j])}. The smaller one goes next.")
-            if left[i] <= right[j]:                            # <= keeps equal items in order
+            if left[i] <= right[j]:
                 merged.append(left[i])
                 i += 1
             else:
                 merged.append(right[j])
                 j += 1
-        merged += left[i:] + right[j:]                         # one half is empty: copy the rest
+        merged += left[i:] + right[j:]
         for k, value in enumerate(merged):
             arr[lo + k] = value
-            counts["swaps"] += 1                               # every item written = one move
+            counts["swaps"] += 1
             log(steps, "set", [lo + k, value], f"Write {fmt(value)} back into the list at index {lo + k}.")
 
     def sort(lo, hi):
-        if lo >= hi:                                           # 0 or 1 item is already sorted
+        if lo >= hi:
             return
         mid = (lo + hi) // 2
         log(steps, "range", [lo, hi], f"Split indices {lo}..{hi} into two halves: {lo}..{mid} and {mid + 1}..{hi}. Each half is sorted on its own first.")
@@ -196,7 +166,6 @@ def merge_sort(values, steps=None):
 
 
 def quick_sort(values, steps=None):
-    """Last item as pivot. Uses a stack instead of recursion so long lists are safe."""
     arr = list(values)
     comparisons = swaps = 0
     stack = [(0, len(arr) - 1)]
@@ -208,7 +177,7 @@ def quick_sort(values, steps=None):
             log(steps, "mark", [lo], f"{fmt(arr[lo])} is alone, so it is in its final place.")
             continue
         pivot = arr[hi]
-        i = lo                          # next place for an item smaller than the pivot
+        i = lo
         log(steps, "range", [lo, hi], f"Now sort indices {lo}..{hi}.")
         log(steps, "pivot", [hi], f"Choose the last item, {fmt(pivot)}, as the pivot. Smaller items will go to its left, the others to its right.")
         for j in range(lo, hi):
@@ -228,8 +197,8 @@ def quick_sort(values, steps=None):
             swaps += 1
         log(steps, "pivot", None, "")
         log(steps, "mark", [i], f"The pivot {fmt(pivot)} is now in its final place (index {i}). The left and right parts are sorted next.")
-        stack.append((lo, i - 1))       # left part
-        stack.append((i + 1, hi))       # right part
+        stack.append((lo, i - 1))
+        stack.append((i + 1, hi))
     log(steps, "range", None, "")
     log(steps, "mark", list(range(len(arr))), "The list is sorted.")
     return arr, comparisons, swaps
@@ -240,13 +209,7 @@ SORTS = {"bubble": bubble_sort, "selection": selection_sort, "insertion": insert
          "merge": merge_sort, "quick": quick_sort}
 
 
-# ============================================================ RUNNING + TIMING
 def time_ms(func, *args):
-    """Execution time in milliseconds.
-
-    Very fast runs are repeated and averaged, and the fastest of 3 rounds is kept, so the
-    number does not jump around because of other programs using the CPU.
-    """
     start = time.perf_counter()
     func(*args)
     first = time.perf_counter() - start

@@ -1,11 +1,12 @@
-/* Algorithm Visualizer: palette 6 (warm grey, graphite, orange) */
+/* style.css: styles for the algorithm visualizer page (warm grey, graphite and orange). */
+
 :root {
-  --base: #D6D3CD;      /* page, 60% */
-  --card: #ECEAE6;      /* card surface */
-  --ink: #2A2A2A;       /* graphite, 30% */
+  --base: #D6D3CD;
+  --card: #ECEAE6;
+  --ink: #2A2A2A;
   --muted: #5A5751;
   --line: #BDB9B1;
-  --accent: #FF5A1F;    /* orange, 10% */
+  --accent: #FF5A1F;
   --accent-soft: #FFB08F;
   --accent-tint: #FFE3D6;
   --pivot: #8A3A12;
@@ -31,7 +32,6 @@ button, input, select { font: inherit; color: inherit; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 [hidden] { display: none !important; }
 
-/* ---------- top bar ---------- */
 .topbar { background: var(--ink); color: var(--base); }
 .topbar-inner {
   max-width: 1200px; margin: 0 auto; padding: 0 20px;
@@ -55,7 +55,6 @@ button, input, select { font: inherit; color: inherit; }
 .nav a:focus-visible, .btn:focus-visible, .algo-btn:focus-visible, .chip button:focus-visible,
 input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-/* ---------- layout ---------- */
 main { max-width: 1200px; margin: 0 auto; padding: 20px; }
 .layout { display: grid; grid-template-columns: 380px minmax(0, 1fr); gap: 16px; align-items: start; }
 .col { display: grid; gap: 16px; min-width: 0; }
@@ -69,7 +68,6 @@ main { max-width: 1200px; margin: 0 auto; padding: 20px; }
 .row + .row { margin-top: 10px; }
 .grow { flex: 1 1 120px; min-width: 0; }
 
-/* ---------- controls ---------- */
 input[type="text"], input[type="number"] {
   background: #fff; border: 1px solid var(--line); border-radius: 10px;
   padding: 8px 12px; transition: border-color .18s ease, box-shadow .18s ease; width: 100%; min-height: 38px;
@@ -90,7 +88,6 @@ input[type="text"]:hover, input[type="number"]:hover { border-color: var(--muted
 .msg:empty { display: none; }
 .msg.error { color: #A3260A; font-weight: 600; }
 
-/* ---------- list chips ---------- */
 .chips {
   display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px;
   max-height: 150px; overflow: auto; padding: 2px;
@@ -107,7 +104,6 @@ input[type="text"]:hover, input[type="number"]:hover { border-color: var(--muted
 .chip button:hover { color: #A3260A; }
 .empty { color: var(--muted); font-size: 14px; padding: 6px 2px; }
 
-/* ---------- algorithm picker ---------- */
 .group-label { font-size: 12px; letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); margin: 0 0 6px; }
 .group-label:not(:first-child) { margin-top: 12px; }
 .algo-grid { display: flex; flex-wrap: wrap; gap: 6px; }
@@ -128,7 +124,6 @@ input[type="text"]:hover, input[type="number"]:hover { border-color: var(--muted
 @media (prefers-reduced-motion: reduce) { .banner.flash { animation: none; } }
 .banner .row { margin-top: 8px; }
 
-/* ---------- stage ---------- */
 .stage-wrap { background: #fff; border: 1px solid var(--line); border-radius: 6px; padding: 6px; }
 #stage { display: block; width: 100%; height: auto; }
 .stage-note { padding: 40px 16px; text-align: center; color: var(--muted); }
@@ -143,7 +138,6 @@ input[type="range"] { accent-color: var(--accent); }
   border-radius: 6px; font-size: 15px;
 }
 
-/* ---------- stats ---------- */
 .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
 .stat { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 12px 14px; min-width: 0; }
 .stat span { display: block; font-size: 12px; color: var(--muted); }
@@ -153,7 +147,6 @@ input[type="range"] { accent-color: var(--accent); }
 .result-chips span { background: #fff; border: 1px solid var(--line); border-radius: 999px; padding: 1px 8px; font-size: 14px; }
 .result-chips span.hit { background: var(--accent); border-color: var(--accent); font-weight: 600; }
 
-/* ---------- tables ---------- */
 .table-wrap { overflow-x: auto; }
 table { border-collapse: collapse; width: 100%; font-size: 14px; }
 th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
@@ -165,7 +158,6 @@ tr.best td { background: var(--accent-tint); }
 .cx .note { color: var(--muted); font-size: 13px; }
 .big-o { font-weight: 650; white-space: nowrap; }
 
-/* ---------- charts ---------- */
 .charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; }
 .chart-title { font-size: 14px; font-weight: 650; margin-bottom: 2px; }
 .chart-sub { font-size: 13px; color: var(--muted); margin-bottom: 6px; }
@@ -183,7 +175,6 @@ tr.best td { background: var(--accent-tint); }
 
 .case-text { margin-top: 8px; padding: 8px 10px; background: var(--accent-tint); border: 1px solid var(--accent); border-radius: 6px; }
 
-/* ---------- one page, numbered sections (same order as the project instructions) ---------- */
 html { scroll-behavior: smooth; }
 section { margin-bottom: 34px; scroll-margin-top: 12px; }
 .step { display: flex; align-items: center; gap: 10px; font-size: 19px; margin-bottom: 4px; }
@@ -196,7 +187,6 @@ tr.picked td { background: var(--accent-tint); }
 .notes { display: grid; gap: 6px; margin-top: 12px; font-size: 14px; }
 .notes b { display: inline-block; min-width: 70px; }
 
-/* ---------- rounded + gentle motion ---------- */
 .card, .stat { transition: box-shadow .2s ease; }
 .card:hover, .stat:hover { box-shadow: 0 2px 10px rgba(42, 42, 42, 0.08); }
 .banner, .explain, .case-text { border-radius: 10px; }
